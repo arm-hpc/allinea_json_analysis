@@ -71,12 +71,14 @@ def print_metric_names(sampleDict):
     assert isinstance(sampleDict, dict)
 
     # Print the activity timeline names
-    print_dict_keys(sampleDict["activity"], "Activity timelines available:",
-            recurseLevel=1)
+    try:
+        print_dict_keys(sampleDict["activity"], "Activity timelines available:",
+                recurseLevel=1)
+    except KeyError:
+        pass # If there is no 'activity' data just carry on
 
     # Print the metric names
     print_dict_keys(sampleDict["metrics"], "Sampled (i.e. time-series) metric names:")
-
 #### End of function print_metric_names
         
 if(__name__ == "__main__"):

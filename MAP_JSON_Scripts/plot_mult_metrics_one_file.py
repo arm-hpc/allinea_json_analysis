@@ -99,7 +99,13 @@ def plot_metrics_single(profileDict, metricFile, plotTitle=None):
     # Get the values to plot on a y-axis
     subDict = get_metric_samples(profileDict["samples"]["metrics"],
             metricNames)
-    activityDict = get_activity_samples(profileDict["samples"]["activity"],
+    try:
+        activitySamples= profileDict["samples"]["activity"]
+    except KeyError:
+        activityDict= dict()
+        pass
+
+    activityDict = get_activity_samples(activityDict,
             metricNames)
 
     # Plot the sampled metrics passed in
