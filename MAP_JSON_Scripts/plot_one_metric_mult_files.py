@@ -52,8 +52,13 @@ def read_metric_from_files(fileList, metricName):
             continue
 
         # Try and read from the activity timeline
-        sampleDict = get_activity_samples(profileDict["samples"]["activity"],
-                [metricName])
+        try:
+            sampleDict = get_activity_samples(profileDict["samples"]["activity"],
+                    [metricName])
+        except KeyError:
+            # If there is no 'activity' data, deal with this case in a sensible way (i.e. ignore it)
+            sampleDict= dict()
+            pass
         if (not sampleDict or len(sampleDict) == 0):
             # Raise an error if the key is not found in one file
             raise KeyError("Unable to find metric " + metricName + " in JSON " +
