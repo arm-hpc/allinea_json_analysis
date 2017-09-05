@@ -100,7 +100,7 @@ def plot_metrics_single(profileDict, metricFile, plotTitle=None):
     subDict = get_metric_samples(profileDict["samples"]["metrics"],
             metricNames)
     try:
-        activitySamples= profileDict["samples"]["activity"]
+        activityDict= profileDict["samples"]["activity"]
     except KeyError:
         activityDict= dict()
         pass
