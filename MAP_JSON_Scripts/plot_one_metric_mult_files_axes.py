@@ -40,6 +40,7 @@ def read_metric_from_files(fileList, metricName):
             profileDict = json.load(f)
 
         numProcs = get_num_processes(profileDict)
+        numThreads = get_num_threads(profileDict)
         runtime = get_runtime(profileDict)
 
         # If no data has been read move on to the next file
@@ -49,7 +50,7 @@ def read_metric_from_files(fileList, metricName):
         sampleDict = get_metric_key_samples(profileDict["samples"]["metrics"], 
                 [metricName])
         if (sampleDict and len(sampleDict) != 0):
-            retDict.update({numProcs : (list(sampleDict.values())[0], runtime)})
+            retDict.update({(numProcs, numThreads) : (list(sampleDict.values())[0], runtime)})
             continue
 
         # Try and read from the activity timeline
@@ -64,7 +65,7 @@ def read_metric_from_files(fileList, metricName):
             raise KeyError("Unable to find metric " + metricName + " in JSON " +
                     "profile " + filename)
 
-        retDict.update({numProcs : (list(sampleDict.values())[0], runtime)})
+        retDict.update({(numProcs, numThreads) : (list(sampleDict.values())[0], runtime)})
 
     return retDict
 #### End of function read_metric_from_files
