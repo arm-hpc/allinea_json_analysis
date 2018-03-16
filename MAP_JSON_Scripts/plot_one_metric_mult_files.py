@@ -120,10 +120,11 @@ def plot_metric_from_files(fileList, metricName, deduplicate, showTime, yLabel=N
     for key in sorted(yData.keys()):
         xData= get_x_data(yData[key], showTime)
         lineHandle, = plt.plot(xData, yData[key][0], lineStyle[count % len(lineStyle)], 
-                label=("Procs: " + str(key)))
+                label=(str(key)))
         lineHandles.append(lineHandle)
         count += 1
-    plt.xlabel("Sample number")
+    xLabel= "Sample number" if not showTime else "Time (ms)"
+    plt.xlabel(xLabel)
     if (not yLabel):
         plt.ylabel(str(metricName))
     else:
