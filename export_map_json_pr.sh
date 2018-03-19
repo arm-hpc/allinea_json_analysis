@@ -60,11 +60,14 @@ do
 
     if [ "$EXPORT_MAP" = true ] && ! [ -e ${MAP_JSON_FNAME} ]
     then
+        # The MAP export has output to console itself, so no need to write any
+        # status message out here
         ${MAP_CMD} --export=${MAP_JSON_FNAME} ${mapfile}
     fi
 
     if [ "$EXPORT_PR" = true ] && ! [ -e ${PR_JSON_FNAME} ]
     then
+        echo "Exporting ${mapfile} to Performance Reports JSON file ${PR_JSON_FNAME}"
         ${PR_CMD} -o ${PR_JSON_FNAME} ${mapfile}
     fi
 done
