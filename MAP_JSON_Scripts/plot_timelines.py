@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import json
 import argparse
 from map_json_common import *
+from operator import add
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Utility to plot information" +
@@ -47,10 +48,13 @@ if __name__ == "__main__":
     # Get the x-axis to plot against
     xData = range(len(mpiData))
 
-    cpuHandle, = plt.plot(xData, cpuData, 'g-', linewidth=2, label="cpu")
-    ioHandle, = plt.plot(xData, ioData, 'r-', linewidth=2, label="io")
-    mpiHandle, = plt.plot(xData, mpiData, 'b-', linewidth=2, label="mpi")
-    openMPHandle, = plt.plot(xData, openmpData, 'y-', linewidth=2, label="openmp")
+    cpuHandle = plt.bar(xData, cpuData, color='g', label="cpu", width=1.0)
+    bottom = cpuData
+    ioHandle = plt.bar(xData, ioData, color='r', label="io", bottom=bottom, width=1.0)
+    bottom = list(map(add, bottom, ioData))
+    openMPHandle = plt.bar(xData, openmpData, color='y', label="openmp", bottom=bottom, width=1.0)
+    bottom = list(map(add, bottom, openmpData))
+    mpiHandle = plt.bar(xData, mpiData, color='b', label="mpi", bottom=bottom, width=1.0)
 
     legend_handles = [cpuHandle, ioHandle, mpiHandle, openMPHandle]
     plt.xticks([], [])
