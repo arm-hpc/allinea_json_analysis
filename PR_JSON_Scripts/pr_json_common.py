@@ -118,6 +118,115 @@ def get_runtime(jsonDict):
     """
     assert isinstance(jsonDict, dict)
 
-    return jdc.get_dict_field_val(jsonDict, ["data", "applicationDetails",
-        "time", "plain"])
+    return float(jdc.get_dict_field_val(jsonDict, ["data", "applicationDetails",
+        "time", "plain"]))
 #### End of function get_runtime
+
+def get_io_percent(jsonDict):
+    """
+    Gets the percentage of time spent in I/O operations
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The percentage of the overall run time spent in I/O operations as a
+        floating point number
+    """
+    assert isinstance(jsonDict, dict)
+
+    return float(jdc.get_dict_field_val(jsonDict,
+        ["data", "overview", "io", "percent"]))
+#### End of function get_io_percent
+
+def get_io_time(jsonDict):
+    """
+    Gets the run time in seconds spent in I/O activity
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The time in seconds spent in I/O operations as a floating point number
+    """
+    assert isinstance(jsonDict, dict)
+
+    ioPercent= get_io_percent(jsonDict)
+    totalTime= get_runtime(jsonDict)
+
+    return totalTime * ioPercent / 100.
+#### End of functoin get_io_time
+
+def get_cpu_percent(jsonDict):
+    """
+    Gets the percentage of run time spent in CPU operations
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The percentage of total run time spent in CPU operations
+    """
+    assert isinstance(jsonDict, dict)
+
+    return float(jdc.get_dict_field_val(jsonDict,
+        ["data", "overview", "cpu", "percent"]))
+#### End of function get_cpu_time
+
+def get_cpu_time(jsonDict):
+    """
+    Gets the time in seconds spent in CPU operations
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The time in seconds spent in CPU operations
+    """
+    assert isinstance(jsonDict, dict)
+
+    cpuPercent= get_cpu_percent(jsonDict)
+    totalTime= get_runtime(jsonDict)
+
+    return totalTime * cpuPercent / 100.
+#### End of function get_cpu_time
+
+def get_mpi_percent(jsonDict):
+    """
+    Gets the percentage of run time spent in (non IO) MPI operations
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The percentage of total run time spent in (non IO) MPI operations
+    """
+    assert isinstance(jsonDict, dict)
+
+    return float(jdc.get_dict_field_val(jsonDict,
+        ["data", "overview", "mpi", "percent"]))
+#### End of function get_mpi_percent
+
+def get_mpi_time(jsonDict):
+    """
+    Gets the time in seconds spent in (non IO) MPI operations
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The time in seconds spent in (non IO) MPI operations
+    """
+    assert isinstance(jsonDict, dict)
+
+    mpiPercent= get_mpi_percent(jsonDict)
+    totalTime= get_runtime(jsonDict)
+
+    return totalTime * mpiPercent / 100.
+#### End of function get_mpi_time
