@@ -40,6 +40,8 @@ The bash script `export_map_pr_json.sh` can be used for an incremental export of
 
 An optional positional argument gives the directory name of a directory to search for MAP files. The output directory is always the directory from which the script was run.
 
+Any files that already exist are not recreated, so this script is safe to run on a directory multiple times. Only files that need to be newly created are created.
+
 ## Script Usage
 
 Each python script provides a help text:
