@@ -37,7 +37,7 @@ def get_samples(profileDict):
     information from the activity timeline)
     """
     return profileDict["samples"]["metrics"]
-#### End of function get_metric_samples
+#### End of function get_samples
 
 def get_runtime(profileDict):
     """
@@ -419,6 +419,21 @@ def get_num_processes(profileDict):
 
     return profileDict["info"]["number_of_processes"]
 #### End of function get_num_procs
+
+def get_num_nodes(profileDict):
+    """
+    Returns the number of nodes used in the given profile
+
+    Args:
+        profileDict (dict): Dictionary of the JSON format of a MAP profile
+
+    Returns:
+        Number of nodes used in the profile passed in
+    """
+    assert isinstance(profileDict, dict)
+
+    return profileDict["info"]["number_of_nodes"]
+#### End of function get_num_nodes
 
 def get_num_threads(profileDict):
     """
