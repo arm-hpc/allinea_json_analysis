@@ -28,8 +28,6 @@ then
     MAP_FILE_DIR="$1/"
 fi
 
-echo "${MAP_FILE_DIR}*.map"
-
 which ${MAP_CMD} &> /dev/null
 if [ $? -ne 0 ]
 then
@@ -54,7 +52,7 @@ fi
 
 for mapfile in ${MAP_FILE_DIR}*.map ;
 do
-    MAP_BASENAME=$(echo ${mapfile} | awk -F'/' '{print $NF}')
+    MAP_BASENAME=$(basename ${mapfile})
     MAP_JSON_FNAME=${MAP_BASENAME/.map/.json}
     PR_JSON_FNAME=pr_${MAP_JSON_FNAME}
 
