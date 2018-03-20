@@ -18,15 +18,6 @@ import argparse
 import json
 import pr_json_common as prj
 
-def get_non_sleeping_time(jsonDict):
-    ioPercent= prj.get_io_percent(jsonDict)
-    cpuPercent= prj.get_cpu_percent(jsonDict)
-    mpiPercent= prj.get_mpi_percent(jsonDict)
-    totalTime= prj.get_runtime(jsonDict)
-
-    return totalTime * (ioPercent + cpuPercent + mpiPercent) / 100.
-#### End of function get_non_sleeping_time
-
 def read_time_data_from_file(fname, category):
     # Open the file for reading
     with open(fname, "r") as f:
@@ -37,8 +28,7 @@ def read_time_data_from_file(fname, category):
             'total': prj.get_runtime,
             'io': prj.get_io_time,
             'mpi': prj.get_mpi_time,
-            'cpu': prj.get_cpu_time,
-            'non-sleeping': get_non_sleeping_time
+            'cpu': prj.get_cpu_time
         }
     # Switch on the category
     timeData= categoryDict.get(category)(jsonDict)
@@ -57,9 +47,10 @@ if __name__ == "__main__":
     parser.add_argument("infile", help="JSON file to read a list of input files from",
         type=argparse.FileType('r'))
     parser.add_argument("--category", help='The category of time data to ' +
-            'display. This is one of {"total", "io", "cpu", "mpi", ' +
-            '"non-sleeping"}', choices=["total", "io", "cpu", "mpi", "non-sleeping"],
-            default="total")
+            'display. This is one of {"total", "io", "cpu", "mpi"}',
+            choices=["total", "io", "cpu", "mpi"], default="total")
+    parser.add_argument("--title", help='Title string to show for the plot',
+            default=None)
 
     args = parser.parse_args()
 
@@ -88,13 +79,12 @@ if __name__ == "__main__":
             'total': "Runtime",
             'io': "I/O Time",
             'cpu': "CPU Time",
-            'mpi': "MPI Time",
-            'non-sleeping': "Active time"
+            'mpi': "MPI Time"
         }
 
     plt.xticks(locs, yLabels)
     plt.xlabel("Processes")
     plt.ylabel("Time (s)")
-    plt.title(title_str[args.category])
+    plt.title(args.title if args.title else title_str[args.category])
     plt.show()
 #### End of main program
