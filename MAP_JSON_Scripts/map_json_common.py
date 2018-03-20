@@ -418,7 +418,7 @@ def get_num_processes(profileDict):
     assert isinstance(profileDict, dict)
 
     return profileDict["info"]["number_of_processes"]
-#### End of function get_num_procs
+#### End of function get_num_processes
 
 def get_num_nodes(profileDict):
     """
