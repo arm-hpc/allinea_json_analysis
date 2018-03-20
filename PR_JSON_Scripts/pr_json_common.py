@@ -104,6 +104,23 @@ def get_num_nodes(jsonDict):
         "nodes", "plain"])
 ### End of function get_num_nodes
 
+def get_start_date(jsonDict):
+    """
+    Gets the start date timestamp in the jsonDict passed through
+
+    Args:
+        jsonDict (dict): Dictionary of JSON values representing a Performance
+            Report
+
+    Returns:
+        The timestamp of the start of the profile
+    """
+    assert isinstance(jsonDict, dict)
+
+    return jdc.get_dict_field_val(jsonDict, ["data", "applicationDetails",
+        "startDate"])
+#### End of function get_start_date
+
 def get_runtime(jsonDict):
     """
     Gets the run time in the jsonDict passed through
