@@ -18,6 +18,43 @@ import argparse
 import json
 import map_json_common as mjc
 
+scalings = { 'constant' : (lambda x, y : 1.),
+            'lineard' : (lambda x, y : float(x) / y),
+            'lineari' : (lambda x, y : float(y) / x),
+            'quadraticd' : (lambda x, y : float(x**2) / y**2),
+            'quadratici' : (lambda x, y : float(y**2) / x**2)
+            }
+
+def get_ideal_func(expected):
+    return scalings[expected]
+
+def get_ideal_line(initTime, coreCounts, expected):
+    """
+    Gets data for an ideal scaling line in either the weak or strong case.
+
+    Args:
+        initTime (float): The initial time from which to draw an ideal scaling
+        coreCounts (list): List of counts of cores from which the ideal line
+            can be calculated
+        expected (str): Indicates what sort of scaling is expected for the
+            ideal line
+    """
+
+    idealData = [0. for _ in coreCounts]
+    idealData[0] = initTime
+
+    scalingFunc = get_ideal_func(expected)
+    for i in range(1,len(coreCounts)):
+        idealData[i] = idealData[i-1] * scalingFunc(coreCounts[i-1], coreCounts[i])
+
+    return idealData
+#### End of function get_ideal_line
+
+def isDecreasing(name):
+    assert isinstance(name, str)
+    return name[-1] == 'd'
+#### End of function isDecreasing
+
 def get_total_runtime(jsonDict):
     """
     Gets the total run time of the profile in seconds (in MAP file this is
@@ -166,7 +203,9 @@ if __name__ == "__main__":
     for label in yLabels:
         data.append(plotDict[label])
 
-    plt.boxplot(data)
+    ax= plt.subplot(211)
+    varDict= ax.boxplot(data, 1)
+    plt.sca(ax)
     locs, _ = plt.xticks()
     assert len(locs) == len(yLabels), print(str(yLabels) + "\n" + str(locs))
 
@@ -182,5 +221,29 @@ if __name__ == "__main__":
     plt.xlabel("Processes")
     plt.ylabel("Time (s)")
     plt.title(args.title if args.title else title_str[args.category])
+
+    # Now plot a line of the means in the next subplot down
+    ax= plt.subplot(212)
+    handles= []
+    plt.sca(ax)
+    medianData= [x.get_ydata()[0] for x in varDict['medians']]
+    scaling= "lineari"
+    label = scaling[0:-1] if scaling[-1] == 'i' or scaling == 'd' else scaling
+    # Plot an ideal line
+    idealFunc = max if isDecreasing(scaling) else min
+    #idealInit = idealFunc([idealFunc(data) for data in [ioData, mpiData, cpuData]]) 
+    idealInit = idealFunc(medianData) * 2
+    x= range(len(medianData))
+    yLabels= [int(x) for x in yLabels]
+    idealHandle, = ax.semilogy(x, get_ideal_line(idealInit, yLabels, scaling),
+            'k-', label=label)
+    handles.append(idealHandle)
+
+    dataHandle, = ax.semilogy(x, medianData, 'g-', label="Median", linewidth=2)
+    handles.append(dataHandle)
+    ax.legend(handles=handles, loc=1, bbox_to_anchor=(0.25, 1.1))
+    plt.xticks(x, yLabels)
+
+
     plt.show()
 #### End of main program
