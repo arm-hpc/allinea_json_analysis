@@ -67,6 +67,8 @@ if __name__ == "__main__":
     # Now plot the times evenly spaced
     plt.plot(range(len(sortedTimes)), sortedTimes, 'rx')
     plt.xticks(range(len(sortedTimes)), sortedDates, rotation=90)
+    plt.xlabel("Date")
+    plt.ylabel("Run time (s)")
     if args.title:
         plt.title(args.title)
     plt.show()
