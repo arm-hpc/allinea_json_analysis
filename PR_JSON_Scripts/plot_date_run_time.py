@@ -57,6 +57,12 @@ if __name__ == "__main__":
     parser.add_argument("--title", help="Title to set for the figure",
             default=None)
 
+    parser.add_argument("--saveFig", help="Indicates that the figure should" +
+            " be saved to file rather than shown on screen",
+            action="store_true", default=False)
+    parser.add_argument("-o", "--output", help="Name of file to save the figure to, if " +
+            "the figure should be saved", default=None)
+
     args = parser.parse_args()
 
     # Read the date and time from the infiles
@@ -71,5 +77,11 @@ if __name__ == "__main__":
     plt.ylabel("Run time (s)")
     if args.title:
         plt.title(args.title)
-    plt.show()
+    if not args.saveFig:
+        plt.show()
+    else:
+        fig= plt.gcf()
+        fig.set_size_inches(18.5, 10)
+        fname= "out.png" if not args.output else args.output
+        fig.savefig(fname, dpi=100)
 #### End of main function
