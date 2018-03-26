@@ -54,6 +54,9 @@ if __name__ == "__main__":
     # Add a file containing a list of files to read data from
     parser.add_argument("infile", help="File to read a list of input files from")
 
+    parser.add_argument("--title", help="Title to set for the figure",
+            default=None)
+
     args = parser.parse_args()
 
     # Read the date and time from the infiles
@@ -64,5 +67,7 @@ if __name__ == "__main__":
     # Now plot the times evenly spaced
     plt.plot(range(len(sortedTimes)), sortedTimes, 'rx')
     plt.xticks(range(len(sortedTimes)), sortedDates, rotation=90)
+    if args.title:
+        plt.title(args.title)
     plt.show()
 #### End of main function
