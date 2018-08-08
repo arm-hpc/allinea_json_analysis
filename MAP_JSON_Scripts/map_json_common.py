@@ -18,7 +18,7 @@ import numbers
 def get_sample_count(profileDict):
     """
     Gets the number of samples taken from a dictionary representing data from an
-    Allinea MAP file
+    Arm MAP file
 
     Args:
         profileDict (dict): Dictionary from which to obtain the count of samples
@@ -30,6 +30,21 @@ def get_sample_count(profileDict):
 
     return profileDict["samples"]["count"]
 #### End of function get_sample_count
+
+def set_sample_count(profileDict, sampleCount):
+    """
+    Sets the number of samples taken from a dictionary representing data from
+    an Arm MAP file
+
+    Args:
+        profileDict (dict): Dictionary in which to set the sample count
+
+    Returns:
+        Nothing. The profileDict is modified in place
+    """
+
+    profileDict["samples"]["count"]= str(sampleCount)
+#### End of function set_sample_count
 
 def get_samples(profileDict):
     """
@@ -71,7 +86,7 @@ def get_window_start_times(profileDict):
     run
 
     Args:
-        profileDict (dict): Dictionary of values representing an Allinea MAP
+        profileDict (dict): Dictionary of values representing an Arm MAP
             profiled run
 
     Returns:
@@ -469,3 +484,33 @@ def get_avg_over_samples(sampleList, first=0, last=-1):
 
     return sum(sampleList[first:last]) / (last - 1 - first)
 #### End of function get_avg_over_samples
+
+def truncate_all_lists(item, startInd, endInd):
+    if (isinstance(item, list)):
+        # If the field is a list, truncate it in place
+        del item[endInd+1:]
+        del item[:startInd]
+    elif (isinstance(item, dict)):
+        # If we find a dictionary, recurse into it
+        for key in item:
+            truncate_all_lists(item[key], startInd, endInd)
+    # Don't care about other fields - leave them as they are
+#### End of function truncate_all_lists
+
+def truncate_samples(sampleDict, startInd, endInd):
+    """
+    Truncates all of the samples for the dictionary passed in. It is assumed
+    that this represents only the sample data in the profile (i.e. all items in
+    the "samples" top-level field). No checks are made that this is the case
+
+    Args:
+        sampleDict (dict): The sample data in a JSON export of a MAP profile.
+        startInd (int): Index from where to start selection (inclusive)
+        endInd (int): Index where to end the selection (inclusive)
+
+    Returns:
+        Nothing. sampleDict is modified in place
+    """
+    for key in sampleDict:
+        truncate_all_lists(sampleDict[key], startInd, endInd)
+#### End of function truncate_samples
