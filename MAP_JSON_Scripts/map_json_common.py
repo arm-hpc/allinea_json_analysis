@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 import numbers
+import datetime as dt
 
 def get_sample_count(profileDict):
     """
@@ -69,6 +70,20 @@ def get_runtime(profileDict):
 
     return int(profileDict["info"]["runtime"])
 #### End of function get_runtime
+
+def set_runtime(profileDict, runtime):
+    """
+    Sets the runtime (in milliseconds) of an application run
+
+    Args:
+        profileDict (dict): Dictionary representing the JSON export of a MAP
+                            profile
+        runtime (int): The runtime to set in milliseconds
+
+    """
+
+    profileDict["info"]["runtime"]= str(int(runtime))
+#### End of function set_runtime
 
 def get_sample_interval(profileDict):
     """
@@ -485,7 +500,7 @@ def get_avg_over_samples(sampleList, first=0, last=-1):
     return sum(sampleList[first:last]) / (last - 1 - first)
 #### End of function get_avg_over_samples
 
-def truncate_all_lists(item, startInd, endInd):
+def __truncate_all_lists(item, startInd, endInd):
     if (isinstance(item, list)):
         # If the field is a list, truncate it in place
         del item[endInd+1:]
@@ -493,24 +508,99 @@ def truncate_all_lists(item, startInd, endInd):
     elif (isinstance(item, dict)):
         # If we find a dictionary, recurse into it
         for key in item:
-            truncate_all_lists(item[key], startInd, endInd)
+            __truncate_all_lists(item[key], startInd, endInd)
     # Don't care about other fields - leave them as they are
-#### End of function truncate_all_lists
+#### End of function __truncate_all_lists
 
-def truncate_samples(sampleDict, startInd, endInd):
+def __update_truncate_runtime(profileDict, newNumSamples, origNumSamples):
+    """
+    When a profile is truncated it is required to update the runtime
+    represented in the file
+
+    Args:
+        profileDict (dict): Dictionary representing the JSON export of a MAP
+                            profile
+        newNumSamples (int): The number of samples in the truncated profile
+        origNumSamples (int): The numer of samples in the original profile
+    """
+    # Get the current run time in ms
+    get_runtime(profileDict)
+#### End of function __update_truncate_runtime
+
+def __truncate_info(infoDict, startInd, endInd, origNumSamples):
+    """
+    Updates the 'info' section of the JSON export of a MAP profile in the case
+    that the profile is truncated. Some metrics need to be removed from this,
+    as they are valid only in the case that all of the samples are available
+
+    Args:
+        infoDict (dict): Dictionary of the 'info' top-level section of a JSON
+                         file which is an export of a MAP profile
+        startInd (int): Index for the start of the truncated profile
+        endInd (int): Index for the end of the truncated profile
+    """
+    if endInd - startInd + 1 == origNumSamples:
+        return
+
+    # Remove sections of the info dictionary that cannot be updated with
+    # reliable information during truncation
+    keys_to_del=["metrics"]
+    for key in keys_to_del:
+        del infoDict[key]
+
+    # Update the runtime
+    currentRuntime= int(infoDict["runtime"])
+    infoDict["runtime"]= int( (endInd - startInd + 1) / float(origNumSamples) *
+            currentRuntime)
+
+    # Update the start time
+    timestr= infoDict["start_time"]
+    offsetInd= -1
+    tCharInd= timestr.rfind("T")
+    assert(tCharInd > 0)
+    # Remove the time offset information
+    for offsetChar in ["+", "-"]:
+        ind= timestr.rfind(offsetChar)
+        if (ind > 0):
+            offsetInd= ind
+            break
+    offsetStr= timestr[offsetInd:] if offsetInd > 0 and offsetInd > tCharInd else ""
+    currStartTimeStr= timestr[:offsetInd] if offsetInd > 0 and offsetInd > tCharInd else timestr
+    # Create a datetime object from the string representation of the date and
+    # time
+    dateFormatStr= "%Y-%m-%dT%H:%M:%S"
+    currentStartTime= dt.datetime.strptime(currStartTimeStr, dateFormatStr)
+    # Calculate how many seconds need to be added to the date to reach the new
+    # start index
+    startOffsetS= int( startInd / float(origNumSamples) * currentRuntime)
+    # Get a date time object for the updated start time
+    newStartTime= currentStartTime + dt.timedelta(seconds=startOffsetS/1000)
+    # Update the dictionary
+    infoDict["start_time"]= newStartTime.strftime(dateFormatStr)
+#### End of function __truncate_info
+
+def truncate_profile(profileDict, startInd, endInd):
     """
     Truncates all of the samples for the dictionary passed in. It is assumed
     that this represents only the sample data in the profile (i.e. all items in
     the "samples" top-level field). No checks are made that this is the case
 
     Args:
-        sampleDict (dict): The sample data in a JSON export of a MAP profile.
+        sampleDict (dict): Dictionary representing the JSON export of a MAP
+                           profile
         startInd (int): Index from where to start selection (inclusive)
         endInd (int): Index where to end the selection (inclusive)
 
     Returns:
-        Nothing. sampleDict is modified in place
+        Nothing. profileDict is modified in place
     """
+    currNumSamples= get_sample_count(profileDict)
+    # Update the count of the number of samples
+    set_sample_count(profileDict, endInd - startInd + 1)
+    # Update the info object 
+    __truncate_info(profileDict["info"], startInd, endInd, currNumSamples)
+    # Update the samples
+    sampleDict= profileDict["samples"]
     for key in sampleDict:
-        truncate_all_lists(sampleDict[key], startInd, endInd)
-#### End of function truncate_samples
+        __truncate_all_lists(sampleDict[key], startInd, endInd)
+#### End of function truncate_profile

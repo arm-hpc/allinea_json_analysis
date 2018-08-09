@@ -39,15 +39,10 @@ if __name__ == "__main__":
         print("Invalid index range [" + str(args.startInd) + ", " + str(args.endInd) + "]")
         sys.exit(1)
 
-    # Loop through all of the samples
-    outDict= {"samples" : profileDict["samples"]}
-    samplesDict= outDict["samples"]
-    samplesDict["count"]= args.endInd - args.startInd + 1 
-
-    mjc.truncate_samples(samplesDict, args.startInd, args.endInd)
+    mjc.truncate_profile(profileDict, args.startInd, args.endInd)
 
     outFileName= generate_out_filename(args.infile, args.startInd, args.endInd)
     with open(outFileName, "w") as f:
-        json.dump(outDict, f, sort_keys=True, indent=4)
+        json.dump(profileDict, f, sort_keys=True, indent=4)
     print("Truncated JSON samples written to " + outFileName)
 #### End of main function
